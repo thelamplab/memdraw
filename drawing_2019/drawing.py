@@ -10,10 +10,10 @@ mywin = visual.Window([scnWidth-10, scnHeight-10], units="pix",
 circle = visual.Circle(
     win = mywin,
     units = "pix",
-    radius = 10,
-    fillColor = [0] * 3,
-    lineColor = [-1] * 3,
-    edges = 128
+    radius = 2,
+    fillColor = [1] * 3,
+    #lineColor = [1] * 3,
+    # edges = 128
 ) # define circle with certain radius and edge that will be drawn on screen
 
 globalClock = core.Clock()
@@ -22,24 +22,29 @@ myMouse = event.Mouse(visible = True, win = mywin)
     
 # function to follow mouse click of user and plots circle whenever mouse click occurs
 def draw_circles(time):
+    all_locations = [] # list to hold all the mouse click locations
     mouse_click_locations = []
+    
     while globalClock.getTime() < time:
-        if myMouse.getPressed()[0]:
+        if myMouse.getPressed()[0]: # if user is left clicking on mouse
             currentPos = myMouse.getPos()
             circle.pos = currentPos # get mouse position and store it to circle position
             mouse_click_locations.append(currentPos)
+        
             
             if len(mouse_click_locations) > 1: 
-                line = visual.Line(mywin, start = tuple(mouse_click_locations[-2]), end = tuple(mouse_click_locations[-1])) # connect the points of the lines being drawn
+                line = visual.Line(mywin, start = tuple(mouse_click_locations[-2]), end = tuple(mouse_click_locations[-1]), lineWidth=5) # connect the points of the lines being drawn
                 line.draw()
                 
-                mywin.update()
-                
             circle.draw()
-            mywin.update()
-    event.waitKeys() # wait for key to be pressed
+            
+        else:
+            mouse_click_locations = [] # reset locations the locations whenever mouse is no longer clicked
     
-    return mouse_click_locations
+        mywin.flip(clearBuffer=False)
+    #event.waitKeys() # wait for key to be pressed
+    
+    return all_locations
 
 # function to display instructions to the user
 def instructions(txt):
@@ -52,17 +57,17 @@ def instructions(txt):
 def nextSlide(clkrst):
     mywin.update()
     if clkrst:
-        globalClock.reset()
+        globalClock.reset() # result the global clock if input to function is true 
 
 if __name__ == "__main__":
     
     instructions("Draw a cat")
     nextSlide(False)
-    draw_circles(8)
+    draw_circles(10)
     nextSlide(True)
     instructions("Draw a dog")
     nextSlide(False)
-    draw_circles(8)
+    draw_circles(10)
     mywin.close()
     core.quit()
             
