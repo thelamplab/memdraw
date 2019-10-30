@@ -1,5 +1,6 @@
 from psychopy import visual, event, core, monitors
 import pandas as pd
+from numpy import array 
 
 monitor_name = "ObiMonitor"
 scnWidth, scnHeight = monitors.Monitor(monitor_name).getSizePix()
@@ -23,7 +24,7 @@ myMouse = event.Mouse(visible = True, win = mywin)
 # function to follow mouse click of user and plots circle whenever mouse click occurs
 def draw_circles(time):
     all_locations = [] # list to hold all the mouse click locations
-    mouse_click_locations = []
+    mouse_click_locations = [] # temporaily holds clicks while mouse is clicked
     
     while globalClock.getTime() < time:
         if myMouse.getPressed()[0]: # if user is left clicking on mouse
@@ -32,14 +33,16 @@ def draw_circles(time):
             mouse_click_locations.append(currentPos)
         
             
-            if len(mouse_click_locations) > 1: 
+            if len(mouse_click_locations) > 1 and (mouse_click_locations[-2] != None).all(): 
                 line = visual.Line(mywin, start = tuple(mouse_click_locations[-2]), end = tuple(mouse_click_locations[-1]), lineWidth=5) # connect the points of the lines being drawn
                 line.draw()
                 
             circle.draw()
             
         else:
-            mouse_click_locations = [] # reset locations the locations whenever mouse is no longer clicked
+            all_locations.extend(mouse_click_locations) # add the mouse click locations to track all the clicks
+            mouse_click_locations = [] # resets locations whenever mouse is no longer clicked
+            mouse_click_locations.append(array([None, None])) # indicates mouse was not clicked during time point 
     
         mywin.flip(clearBuffer=False)
     #event.waitKeys() # wait for key to be pressed
@@ -59,15 +62,34 @@ def nextSlide(clkrst):
     if clkrst:
         globalClock.reset() # result the global clock if input to function is true 
 
+def createDF(locations, column_title):
+    df = pd.DataFrame(pd.Series(locations))
+    df.columns = [column_title]
+    
+    return df
+
+def mergeDF(firstDF, secondDF):
+    return pd.concat([firstDF, secondDF], ignore_index = True, axis = 1)
+
 if __name__ == "__main__":
+
+    df = pd.DataFrame()
     
     instructions("Draw a cat")
     nextSlide(False)
-    draw_circles(10)
+    catLocations = draw_circles(10)
+    df_cat = createDF(catLocations, "cat clicks")
+    df = mergeDF(df, df_cat)
+    
     nextSlide(True)
+    
     instructions("Draw a dog")
     nextSlide(False)
-    draw_circles(10)
+    dogLocations = draw_circles(10)
+    df_dog = createDF(dogLocations, "dog clicks")
+    df = mergeDF(df, df_cat)
+    
+    df.to_excel("mouseClicks.xlsx")
     mywin.close()
     core.quit()
             
