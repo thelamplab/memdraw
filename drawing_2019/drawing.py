@@ -24,10 +24,10 @@ myMouse = event.Mouse(visible = True, win = mywin)
 # function to follow mouse click of user and plots circle whenever mouse click occurs
 def draw_circles(time):
     all_locations = [] # list to hold all the mouse click locations
-    mouse_click_locations = [] # temporaily holds clicks while mouse is clicked
+    mouse_click_locations = [] # temporarily holds clicks while mouse is clicked
     
     while globalClock.getTime() < time:
-        if myMouse.getPressed()[0]: # if user is left clicking on mouse
+        if myMouse.getPressed()[0]: # if user is left-clicking on mouse
             currentPos = myMouse.getPos()
             circle.pos = currentPos # get mouse position and store it to circle position
             mouse_click_locations.append(currentPos)
@@ -45,7 +45,6 @@ def draw_circles(time):
             mouse_click_locations.append(array([None, None])) # indicates mouse was not clicked during time point 
     
         mywin.flip(clearBuffer=False)
-    #event.waitKeys() # wait for key to be pressed
     
     return all_locations
 
@@ -60,15 +59,19 @@ def instructions(txt):
 def nextSlide(clkrst):
     mywin.update()
     if clkrst:
-        globalClock.reset() # result the global clock if input to function is true 
+        globalClock.reset() # reset the global clock if input to function is true 
 
-def createDF(locations, column_title):
-    df = pd.DataFrame(pd.Series(locations))
-    df.columns = [column_title]
+def createDF(locations, drawing_name): # take list of locations and create dataframe
+    df_x = pd.DataFrame(pd.Series([locs[0] for locs in locations]))
+    df_y = pd.DataFrame(pd.Series([locs[1] for locs in locations]))
+    df_name = pd.DataFrame(pd.Series([drawing_name] * len(locations)))
+    
+    df = mergeDF(df_x, df_y)
+    df = mergeDF(df, df_name)
     
     return df
 
-def mergeDF(firstDF, secondDF):
+def mergeDF(firstDF, secondDF): # merge two dataframe into one dataframe 
     return pd.concat([firstDF, secondDF], ignore_index = True, axis = 1)
 
 if __name__ == "__main__":
@@ -78,7 +81,7 @@ if __name__ == "__main__":
     instructions("Draw a cat")
     nextSlide(False)
     catLocations = draw_circles(10)
-    df_cat = createDF(catLocations, "cat clicks")
+    df_cat = createDF(catLocations, "cat")
     df = mergeDF(df, df_cat)
     
     nextSlide(True)
@@ -86,40 +89,10 @@ if __name__ == "__main__":
     instructions("Draw a dog")
     nextSlide(False)
     dogLocations = draw_circles(10)
-    df_dog = createDF(dogLocations, "dog clicks")
-    df = mergeDF(df, df_cat)
+    df_dog = createDF(dogLocations, "dog")
+    df = mergeDF(df, df_dog)
     
     df.to_excel("mouseClicks.xlsx")
     mywin.close()
     core.quit()
             
-# refresh_rate = 60.0
-# default_time = 10
-# time_window = int(default_time * refresh_rate)
-# 
-# mouse_click_locations = [] # list to store mouse click locations
-#     
-# for time in range(time_window):
-#     mouse_loc = myMouse.getPos()
-#     mouse_click = myMouse.getPressed()
-#     
-#     if mouse_click: 
-#         if mouse_loc == mouse_click_locations[-1]: # don't add duplicate locations
-#             pass
-#         else:
-#             mouse_click_locations.append(mouse_loc)
-#     
-#     mywin.flip()
-#     myMouse.clickReset()
-# 
-# 
-# print(mouse_click_locations)
-
-
-#circle.draw()
-#mywin.flip()
-#event.waitKeys()
-
-# draw_circles(15)
-# core.quit()
-# mywin.close()
