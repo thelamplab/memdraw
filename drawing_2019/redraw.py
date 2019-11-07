@@ -1,11 +1,11 @@
 from psychopy import visual, event, core, monitors
 import pandas as pd
 
-monitor_name = "MyBig"
+monitor_name = "ObiMonitor"
 scnWidth, scnHeight = monitors.Monitor(monitor_name).getSizePix()
 
 mywin = visual.Window([scnWidth-10, scnHeight-10], units="pix",
-                      monitor=monitor_name, fullscr=True, waitBlanking=False, allowGUI=False)
+                  monitor=monitor_name, fullscr=False, waitBlanking=False, allowGUI=True)
                   
 circle = visual.Circle(
     win=mywin,
@@ -19,17 +19,15 @@ line = visual.Line(mywin, lineColor=[-1, -1, -1], lineWidth=5)
 
 def draw(file_name, xLoc):
     """ Takes in filename and column location of x coordinates """
-
-    drawLine = False
-    drawCircle = False
-    i = 0
     
     df = pd.read_excel(file_name)
     df = df.fillna("None")  # fill all nan values with "None" string
     length = len(df) - 1
     
-    while i < length:  # loop through rows of points
-        
+    for i in range(length):  # loop through rows of points
+    
+        drawLine = False
+        drawCircle = False
         firstPoint = tuple([df[xLoc][i], df[xLoc + 1][i]])  # xLoc + 1 = yLoc ==> column location of y coordinates
         secondPoint = tuple([df[xLoc][i + 1], df[xLoc + 1][i + 1]])
         
@@ -49,7 +47,7 @@ def draw(file_name, xLoc):
             line.draw()
 
         mywin.flip(clearBuffer=False)
-        i += 1
+        
     for i in range(5):
         mywin.flip(clearBuffer=True)
 

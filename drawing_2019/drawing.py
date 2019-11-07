@@ -12,10 +12,13 @@ circle = visual.Circle(
     win = mywin,
     units = "pix",
     radius = 2,
-    fillColor = [1] * 3,
+    fillColor = [-1] * 3,
+    lineWidth = 0
     #lineColor = [1] * 3,
     # edges = 128
 ) # define circle with certain radius and edge that will be drawn on screen
+
+line = visual.Line(mywin, lineColor=[-1, -1, -1], lineWidth=5)
 
 globalClock = core.Clock()
 myMouse = event.Mouse(visible = True, win = mywin)
@@ -34,7 +37,8 @@ def draw_circles(time):
         
             
             if len(mouse_click_locations) > 1 and (mouse_click_locations[-2] != None).all(): 
-                line = visual.Line(mywin, start = tuple(mouse_click_locations[-2]), end = tuple(mouse_click_locations[-1]), lineWidth=5) # connect the points of the lines being drawn
+                line.start = tuple(mouse_click_locations[-2])
+                line.end = tuple(mouse_click_locations[-1]) # connect the points of the lines being drawn
                 line.draw()
                 
             circle.draw()
@@ -80,7 +84,7 @@ if __name__ == "__main__":
     
     instructions("Draw a cat")
     nextSlide(False)
-    catLocations = draw_circles(10)
+    catLocations = draw_circles(20)
     df_cat = createDF(catLocations, "cat")
     df = mergeDF(df, df_cat)
     
@@ -88,11 +92,11 @@ if __name__ == "__main__":
     
     instructions("Draw a dog")
     nextSlide(False)
-    dogLocations = draw_circles(10)
+    dogLocations = draw_circles(20)
     df_dog = createDF(dogLocations, "dog")
     df = mergeDF(df, df_dog)
     
-    df.to_excel("mouseClicks.xlsx")
+    df.to_excel("mouseClicks.xlsx", index = False)
     mywin.close()
     core.quit()
             
